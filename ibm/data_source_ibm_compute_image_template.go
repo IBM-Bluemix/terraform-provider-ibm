@@ -26,6 +26,12 @@ func dataSourceIBMComputeImageTemplate() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 			},
+
+			"most_recent": {
+				Description: "Get the most_recent id of this image template",
+				Type:        schema.TypeBool,
+				Optional:    true,
+			},
 		},
 	}
 }
@@ -35,6 +41,7 @@ func dataSourceIBMComputeImageTemplateRead(d *schema.ResourceData, meta interfac
 	service := services.GetAccountService(sess)
 
 	name := d.Get("name").(string)
+	most_recent := d.Get("most_recent").(bool)
 
 	imageTemplates, err := service.
 		Mask("id,name").
@@ -63,6 +70,13 @@ func dataSourceIBMComputeImageTemplateRead(d *schema.ResourceData, meta interfac
 
 	if len(pubImageTemplates) > 0 {
 		imageTemplate := pubImageTemplates[0]
+		if most_recent {
+			for _, image := range pubImageTemplates {
+				if *imageTemplate.Id < *image.Id {
+					imageTemplate = image
+				}
+			}
+		}
 		d.SetId(fmt.Sprintf("%d", *imageTemplate.Id))
 		return nil
 	}
