@@ -2021,7 +2021,7 @@ func isWaitForInstanceDelete(instanceC *vpcv1.VpcV1, d *schema.ResourceData, id 
 func isWaitForClassicInstanceActionStop(instanceC *vpcclassicv1.VpcClassicV1, d *schema.ResourceData, meta interface{}, id string) (interface{}, error) {
 
 	stateConf := &resource.StateChangeConf{
-		Pending: []string{isInstanceStatusRunning, isInstanceStatusPending, isInstanceActionStatusStopping},
+		Pending: []string{isInstanceActionStatusStopping},
 		Target:  []string{isInstanceActionStatusStopped, isInstanceStatusFailed, ""},
 		Refresh: func() (interface{}, string, error) {
 			getinsoptions := &vpcclassicv1.GetInstanceOptions{
@@ -2033,8 +2033,10 @@ func isWaitForClassicInstanceActionStop(instanceC *vpcclassicv1.VpcClassicV1, d 
 			}
 			if *instance.Status == isInstanceStatusFailed {
 				return instance, *instance.Status, fmt.Errorf("The  instance %s failed to stop: %v", d.Id(), err)
+			} else if *instance.Status == isInstanceActionStatusStopped {
+				return instance, *instance.Status, nil
 			}
-			return instance, *instance.Status, nil
+			return instance, isInstanceActionStatusStopping, nil
 		},
 		Timeout:    d.Timeout(schema.TimeoutDelete),
 		Delay:      10 * time.Second,
@@ -2046,7 +2048,7 @@ func isWaitForClassicInstanceActionStop(instanceC *vpcclassicv1.VpcClassicV1, d 
 func isWaitForInstanceActionStop(instanceC *vpcv1.VpcV1, d *schema.ResourceData, meta interface{}, id string) (interface{}, error) {
 
 	stateConf := &resource.StateChangeConf{
-		Pending: []string{isInstanceStatusRunning, isInstanceStatusPending, isInstanceActionStatusStopping},
+		Pending: []string{isInstanceActionStatusStopping},
 		Target:  []string{isInstanceActionStatusStopped, isInstanceStatusFailed, ""},
 		Refresh: func() (interface{}, string, error) {
 			getinsoptions := &vpcv1.GetInstanceOptions{
@@ -2058,8 +2060,10 @@ func isWaitForInstanceActionStop(instanceC *vpcv1.VpcV1, d *schema.ResourceData,
 			}
 			if *instance.Status == isInstanceStatusFailed {
 				return instance, *instance.Status, fmt.Errorf("The  instance %s failed to stop: %v", d.Id(), err)
+			} else if *instance.Status == isInstanceActionStatusStopped {
+				return instance, *instance.Status, nil
 			}
-			return instance, *instance.Status, nil
+			return instance, isInstanceActionStatusStopping, nil
 		},
 		Timeout:    d.Timeout(schema.TimeoutDelete),
 		Delay:      10 * time.Second,
