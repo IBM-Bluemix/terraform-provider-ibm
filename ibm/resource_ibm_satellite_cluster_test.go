@@ -8,13 +8,13 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/IBM-Cloud/container-services-go-sdk/kubernetesserviceapiv1"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
-	"github.ibm.com/ibmcloud/kubernetesservice-go-sdk/kubernetesserviceapiv1"
 )
 
-func TestAccSatelliteCluster_Basic(t *testing.T) {
+func TestAccIBMSatelliteCluster_Basic(t *testing.T) {
 	var instance string
 	clusterName := fmt.Sprintf("tf-satellitecluster-%d", acctest.RandIntRange(10, 100))
 	locationName := fmt.Sprintf("tf-satellitelocation-%d", acctest.RandIntRange(10, 100))
@@ -45,7 +45,7 @@ ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCKVmnMOlHKcZK8tpt3MP1lqOLAcqcJzhsvJcjscgVE
 	})
 }
 
-func TestAccSatelliteCluster_Import(t *testing.T) {
+func TestAccIBMSatelliteCluster_Import(t *testing.T) {
 	var instance string
 	clusterName := fmt.Sprintf("tf-satellitecluster-%d", acctest.RandIntRange(10, 100))
 	locationName := fmt.Sprintf("tf-satellitelocation-%d", acctest.RandIntRange(10, 100))
