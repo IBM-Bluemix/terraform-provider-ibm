@@ -272,22 +272,19 @@ func classicSgRuleCreate(d *schema.ResourceData, meta interface{}) error {
 		{
 			sgrule := rule.(*vpcclassicv1.SecurityGroupRuleSecurityGroupRuleProtocolIcmp)
 			d.Set(isSecurityGroupRuleID, *sgrule.ID)
-			tfID := makeTerraformRuleID(parsed.secgrpID, *sgrule.ID)
-			d.SetId(tfID)
+			d.SetId(fmt.Sprintf("%s/%s", parsed.secgrpID, *sgrule.ID))
 		}
 	case "*vpcclassicv1.SecurityGroupRuleSecurityGroupRuleProtocolAll":
 		{
 			sgrule := rule.(*vpcclassicv1.SecurityGroupRuleSecurityGroupRuleProtocolAll)
 			d.Set(isSecurityGroupRuleID, *sgrule.ID)
-			tfID := makeTerraformRuleID(parsed.secgrpID, *sgrule.ID)
-			d.SetId(tfID)
+			d.SetId(fmt.Sprintf("%s/%s", parsed.secgrpID, *sgrule.ID))
 		}
 	case "*vpcclassicv1.SecurityGroupRuleSecurityGroupRuleProtocolTcpudp":
 		{
 			sgrule := rule.(*vpcclassicv1.SecurityGroupRuleSecurityGroupRuleProtocolTcpudp)
 			d.Set(isSecurityGroupRuleID, *sgrule.ID)
-			tfID := makeTerraformRuleID(parsed.secgrpID, *sgrule.ID)
-			d.SetId(tfID)
+			d.SetId(fmt.Sprintf("%s/%s", parsed.secgrpID, *sgrule.ID))
 		}
 	}
 	return nil
@@ -320,22 +317,19 @@ func sgRuleCreate(d *schema.ResourceData, meta interface{}) error {
 		{
 			sgrule := rule.(*vpcv1.SecurityGroupRuleSecurityGroupRuleProtocolIcmp)
 			d.Set(isSecurityGroupRuleID, *sgrule.ID)
-			tfID := makeTerraformRuleID(parsed.secgrpID, *sgrule.ID)
-			d.SetId(tfID)
+			d.SetId(fmt.Sprintf("%s/%s", parsed.secgrpID, *sgrule.ID))
 		}
 	case "*vpcv1.SecurityGroupRuleSecurityGroupRuleProtocolAll":
 		{
 			sgrule := rule.(*vpcv1.SecurityGroupRuleSecurityGroupRuleProtocolAll)
 			d.Set(isSecurityGroupRuleID, *sgrule.ID)
-			tfID := makeTerraformRuleID(parsed.secgrpID, *sgrule.ID)
-			d.SetId(tfID)
+			d.SetId(fmt.Sprintf("%s/%s", parsed.secgrpID, *sgrule.ID))
 		}
 	case "*vpcv1.SecurityGroupRuleSecurityGroupRuleProtocolTcpudp":
 		{
 			sgrule := rule.(*vpcv1.SecurityGroupRuleSecurityGroupRuleProtocolTcpudp)
 			d.Set(isSecurityGroupRuleID, *sgrule.ID)
-			tfID := makeTerraformRuleID(parsed.secgrpID, *sgrule.ID)
-			d.SetId(tfID)
+			d.SetId(fmt.Sprintf("%s/%s", parsed.secgrpID, *sgrule.ID))
 		}
 	}
 	return nil
@@ -346,10 +340,22 @@ func resourceIBMISSecurityGroupRuleRead(d *schema.ResourceData, meta interface{}
 	if err != nil {
 		return err
 	}
-	secgrpID, ruleID, err := parseISTerraformID(d.Id())
-	if err != nil {
-		return err
+	var secgrpID, ruleID string
+
+	if strings.Contains(d.Id(), ".") {
+		secgrpID, ruleID, err = parseISTerraformID(d.Id())
+		if err != nil {
+			return err
+		}
+	} else {
+		parts, err := idParts(d.Id())
+		if err != nil {
+			return err
+		}
+		secgrpID = parts[0]
+		ruleID = parts[1]
 	}
+
 	if userDetails.generation == 1 {
 		err := classicSgRuleGet(d, meta, secgrpID, ruleID)
 		if err != nil {
@@ -396,8 +402,8 @@ func classicSgRuleGet(d *schema.ResourceData, meta interface{}, secgrpID, ruleID
 		{
 			rule := sgrule.(*vpcclassicv1.SecurityGroupRuleSecurityGroupRuleProtocolIcmp)
 			d.Set(isSecurityGroupRuleID, *rule.ID)
-			tfID := makeTerraformRuleID(secgrpID, *rule.ID)
-			d.SetId(tfID)
+			d.SetId(fmt.Sprintf("%s/%s", secgrpID, *rule.ID))
+			d.Set(isSecurityGroupRuleDirection, *rule.Direction)
 			d.Set(isSecurityGroupRuleIPVersion, *rule.IPVersion)
 			d.Set(isSecurityGroupRuleProtocol, *rule.Protocol)
 			icmpProtocol := map[string]interface{}{}
@@ -428,8 +434,8 @@ func classicSgRuleGet(d *schema.ResourceData, meta interface{}, secgrpID, ruleID
 		{
 			rule := sgrule.(*vpcclassicv1.SecurityGroupRuleSecurityGroupRuleProtocolAll)
 			d.Set(isSecurityGroupRuleID, *rule.ID)
-			tfID := makeTerraformRuleID(secgrpID, *rule.ID)
-			d.SetId(tfID)
+			d.SetId(fmt.Sprintf("%s/%s", secgrpID, *rule.ID))
+			d.Set(isSecurityGroupRuleDirection, *rule.Direction)
 			d.Set(isSecurityGroupRuleIPVersion, *rule.IPVersion)
 			d.Set(isSecurityGroupRuleProtocol, *rule.Protocol)
 			remote, ok := rule.Remote.(*vpcclassicv1.SecurityGroupRuleRemote)
@@ -449,8 +455,8 @@ func classicSgRuleGet(d *schema.ResourceData, meta interface{}, secgrpID, ruleID
 		{
 			rule := sgrule.(*vpcclassicv1.SecurityGroupRuleSecurityGroupRuleProtocolTcpudp)
 			d.Set(isSecurityGroupRuleID, *rule.ID)
-			tfID := makeTerraformRuleID(secgrpID, *rule.ID)
-			d.SetId(tfID)
+			d.SetId(fmt.Sprintf("%s/%s", secgrpID, *rule.ID))
+			d.Set(isSecurityGroupRuleDirection, *rule.Direction)
 			d.Set(isSecurityGroupRuleIPVersion, *rule.IPVersion)
 			d.Set(isSecurityGroupRuleProtocol, *rule.Protocol)
 			tcpProtocol := map[string]interface{}{}
@@ -516,8 +522,8 @@ func sgRuleGet(d *schema.ResourceData, meta interface{}, secgrpID, ruleID string
 		{
 			rule := sgrule.(*vpcv1.SecurityGroupRuleSecurityGroupRuleProtocolIcmp)
 			d.Set(isSecurityGroupRuleID, *rule.ID)
-			tfID := makeTerraformRuleID(secgrpID, *rule.ID)
-			d.SetId(tfID)
+			d.SetId(fmt.Sprintf("%s/%s", secgrpID, *rule.ID))
+			d.Set(isSecurityGroupRuleDirection, *rule.Direction)
 			d.Set(isSecurityGroupRuleIPVersion, *rule.IPVersion)
 			d.Set(isSecurityGroupRuleProtocol, *rule.Protocol)
 			icmpProtocol := map[string]interface{}{}
@@ -548,8 +554,8 @@ func sgRuleGet(d *schema.ResourceData, meta interface{}, secgrpID, ruleID string
 		{
 			rule := sgrule.(*vpcv1.SecurityGroupRuleSecurityGroupRuleProtocolAll)
 			d.Set(isSecurityGroupRuleID, *rule.ID)
-			tfID := makeTerraformRuleID(secgrpID, *rule.ID)
-			d.SetId(tfID)
+			d.SetId(fmt.Sprintf("%s/%s", secgrpID, *rule.ID))
+			d.Set(isSecurityGroupRuleDirection, *rule.Direction)
 			d.Set(isSecurityGroupRuleIPVersion, *rule.IPVersion)
 			d.Set(isSecurityGroupRuleProtocol, *rule.Protocol)
 			remote, ok := rule.Remote.(*vpcv1.SecurityGroupRuleRemote)
@@ -569,8 +575,8 @@ func sgRuleGet(d *schema.ResourceData, meta interface{}, secgrpID, ruleID string
 		{
 			rule := sgrule.(*vpcv1.SecurityGroupRuleSecurityGroupRuleProtocolTcpudp)
 			d.Set(isSecurityGroupRuleID, *rule.ID)
-			tfID := makeTerraformRuleID(secgrpID, *rule.ID)
-			d.SetId(tfID)
+			d.SetId(fmt.Sprintf("%s/%s", secgrpID, *rule.ID))
+			d.Set(isSecurityGroupRuleDirection, *rule.Direction)
 			d.Set(isSecurityGroupRuleIPVersion, *rule.IPVersion)
 			d.Set(isSecurityGroupRuleProtocol, *rule.Protocol)
 			tcpProtocol := map[string]interface{}{}
