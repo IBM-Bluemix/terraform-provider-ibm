@@ -47,6 +47,7 @@ Review the argument references that you can specify for your resource.
 
 - `access_tags` - (Optional, List of Strings) A list of access management tags for the volume. **Note** Currently we are supporting only the existing tags attachement.
 - `capacity` - (Optional, Forces new resource, Integer) (The capacity of the volume in gigabytes. This defaults to `100`.
+- `delete_all_snapshots` - (Optional, Bool) Deletes all snapshots created from this volume.
 - `encryption_key` - (Optional, Forces new resource, String) The key to use for encrypting this volume.
 - `iops` - (Optional, Forces new resource, Integer) The total input/ output operations per second (IOPS) for your storage. This value is required for `custom` storage profiles only.
 - `name` - (Required, String) The user-defined name for this volume.No.
@@ -60,7 +61,8 @@ Review the argument references that you can specify for your resource.
 In addition to all argument reference list, you can access the following attribute reference after your resource is created.
 
 - `id` - (String) The unique identifier of the volume.
-- `status` - (String) The status of volume. Supported values are **available**, **failed**, **pending**, **unusable**, or `pending_deletion`.
+- `source_snapshot` - ID of the snapshot, if volume was created from it.
+- `status` - (String) The status of volume. Supported values are **available**, **failed**, **pending**, **unusable**, or **pending_deletion**.
 - `status_reasons` - (List) Array of reasons for the current status.
 
   Nested scheme for `status_reasons`:
