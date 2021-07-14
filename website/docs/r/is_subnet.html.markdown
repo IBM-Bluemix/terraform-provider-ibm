@@ -50,6 +50,7 @@ The `ibm_is_subnet` resource provides the following [Timeouts](https://www.terra
 ## Argument reference
 Review the argument references that you can specify for your resource. 
 
+- `access_tags`  - (Optional, List of Strings) A list of access management tags for the subnet. **Note** Currently we are supporting only the existing tags attachement. 
 - `ipv4_cidr_block` - (Optional, Forces new resource, String) The IPv4 range of the subnet.
 - `ip_version` - (Optional, Forces new resource, String) The IP Version. The default is `ipv4`.
 - `name` - (Required, String) The name of the subnet.
